@@ -61,6 +61,7 @@ class DocumentTests(unittest.TestCase):
         self.assertIsNone(api.parse_ranges(''))
         self.assertIsNone(api.parse_ranges('1-3; rm -rf /'))
         self.assertIsNone(api.parse_ranges('1-3 -o job-hold-until=indefinite'))
+        self.assertIsNone(api.parse_ranges('1\n2'))
         self.assertIsNone(api.parse_ranges('x' * 65))
 
 

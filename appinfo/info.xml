@@ -45,7 +45,7 @@ PDF・PNG・JPEG・テキストを選ぶと、CUPSサーバーの隣で動く小
 プライバシー: 利用者がアクションを実行すると、選んだファイルが管理者の設定した
 中継APIへ送信されます。それ以外のデータは送信しません。
 ]]></description>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<licence>AGPL-3.0-or-later</licence>
 	<author>rurutheGeek</author>
 	<!-- PHPクラスの名前空間。宣言が無いと Nextcloud は ucfirst した

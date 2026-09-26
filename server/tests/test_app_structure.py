@@ -71,6 +71,16 @@ class AppTests(unittest.TestCase):
         self.assertIn('PAGE_RANGES_PATTERN', controller)
         self.assertIn("'md'", controller)
 
+    def test_the_stream_size_and_relay_errors_are_handled(self):
+        controller = read('lib/Controller/PrintController.php')
+        # サイズ不明のストリームはchunkedになり、中継のContent-Length検査で弾かれる。
+        self.assertIn("'Content-Length' => (string)$node->getSize()", controller)
+        # 4xx/5xxでも中継のエラー本文を利用者へ返す。
+        self.assertIn("'http_errors' => false", controller)
+        self.assertIn("$result['error']", controller)
+        # \s は改行も通してしまうので、ページ範囲は空白とハイフンだけ許可する。
+        self.assertIn(r'/^[0-9,\- ]{1,64}$/', controller)
+
     def test_non_admins_may_use_the_print_route(self):
         controller = read('lib/Controller/PrintController.php')
         self.assertIn('use OCP\\AppFramework\\Http\\Attribute\\NoAdminRequired;', controller)

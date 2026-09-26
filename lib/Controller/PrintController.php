@@ -21,7 +21,7 @@ class PrintController extends Controller {
 	/** Only formats CUPS can handle directly are accepted. */
 	private const ALLOWED_EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'txt', 'md'];
 	/** "1-3,5" only; the relay turns this into the CUPS page-ranges option. */
-	private const PAGE_RANGES_PATTERN = '/^[0-9,\-\s]{1,64}$/';
+	private const PAGE_RANGES_PATTERN = '/^[0-9,\- ]{1,64}$/';
 
 	public function __construct(
 		string $appName,
@@ -85,6 +85,7 @@ class PrintController extends Controller {
 			$headers = [
 				'Authorization' => 'Bearer ' . $token,
 				'Content-Type' => 'application/octet-stream',
+				'Content-Length' => (string)$node->getSize(),
 				'X-Print-Filename' => rawurlencode($node->getName()),
 				'X-Print-Copies' => (string) max(1, min(99, $copies)),
 				'X-Print-Color' => $color === 'monochrome' ? 'monochrome' : 'color',
@@ -96,6 +97,7 @@ class PrintController extends Controller {
 				'headers' => $headers,
 				'body' => $handle,
 				'timeout' => 60,
+				'http_errors' => false,
 				'nextcloud' => ['allow_local_address' => true],
 			]);
 		} catch (\Throwable $error) {
@@ -108,6 +110,12 @@ class PrintController extends Controller {
 		}
 
 		$result = json_decode((string)$response->getBody(), true);
+		if ($response->getStatusCode() !== 200) {
+			$message = is_array($result) && isset($result['error']) && is_string($result['error'])
+				? $result['error']
+				: $this->l->t('Could not confirm the print job');
+			return new DataResponse(['error' => $message], Http::STATUS_BAD_GATEWAY);
+		}
 		if (!is_array($result) || !isset($result['job'])) {
 			return new DataResponse(['error' => $this->l->t('Could not confirm the print job')], Http::STATUS_BAD_GATEWAY);
 		}
