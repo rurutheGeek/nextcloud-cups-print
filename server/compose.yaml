@@ -1,0 +1,12 @@
+services:
+  print-relay:
+    build: .
+    image: ghcr.io/ruruthegeek/cups-print-relay:latest
+    env_file: .env
+    # CUPS_SERVER is read by `lp` and must point at your CUPS server,
+    # e.g. cups.example.net:631. Remove it to use a CUPS on the host.
+    environment:
+      CUPS_SERVER: ${CUPS_SERVER:-}
+    ports:
+      - "6320:6320"
+    restart: unless-stopped
